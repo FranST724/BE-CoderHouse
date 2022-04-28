@@ -1,18 +1,9 @@
-[
-    {
-        title: 'Escuadra',
-        price: 123.45,
-        id:1
-
-},
-{
-         title: 'Calculadora',
-        price: 234.56,
-        id:2
-},
-{
-        title: 'Globo Terráqueo',
-        price: 345.67,
-        id:3
-}
-]
+[{"title":"Escuadra",
+"price":123.45,
+"id":1},
+    {"title":"Calculadora",
+    "price":234.56,
+    "id":2},
+    {"title":"Globo Terráqueo",
+    "price":345.67,
+    "id":3}]
