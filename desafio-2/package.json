@@ -1,17 +1,21 @@
 {
   "name": "desafio-2",
   "version": "1.0.0",
+  "description": "",
   "main": "clase.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "type": "module",
   "dependencies": {
+    "body-parser": "^1.20.0",
+    "express": "^4.18.1",
     "moments": "^0.0.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon ./servidor.js"
+  },
   "keywords": [],
-  "description": ""
+  "author": "",
+  "license": "ISC"
 }
