@@ -20,6 +20,17 @@ class Contenedor {
 		}
 	}
 
+	async save2(objeto) {
+		let objeto = {
+			id: object.id,
+			title: object.title,
+			price: object.price,
+			thumbnail: object.thumbnail
+		};
+		this.file.push(objeto);
+		return objeto;
+	}
+
 	async getById() {
 		try {
 			const data = await fs.promises.readFile(this.file, 'utf-8');
