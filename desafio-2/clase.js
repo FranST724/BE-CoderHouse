@@ -1,45 +1,49 @@
 const fs = require('fs');
 
 class Contenedor {
-	constructor(file) {
-		this.file = file;
+	constructor() {
+		this.productos = [
+			{
+				title: 'producto0',
+				price: '23',
+				thumbnail: '',
+				id: 0
+			}
+		];
 	}
 
 	async save(objeto) {
 		try {
-			const data = await fs.promises.readFile(this.file, 'utf-8');
-			const prevData = JSON.parse(data);
-			const IdCount = prevData.length + 1;
+			const IdCount = this.productos.length;
 			const newObject = { ...objeto, id: IdCount };
-			prevData.push(newObject);
-			console.log(prevData);
-			await fs.promises.writeFile(`./${this.file}`, `${JSON.stringify(prevData)}`);
+			this.productos.push(newObject);
 			return IdCount;
 		} catch (error) {
 			console.log('error', error);
 		}
 	}
 
-	async save2(objeto) {
-		let objeto = {
-			id: object.id,
-			title: object.title,
-			price: object.price,
-			thumbnail: object.thumbnail
-		};
-		this.file.push(objeto);
-		return objeto;
+	async update(objeto, id) {
+		try {
+			const prevObjectIndex = this.productos.findIndex((element) => {
+				return element.id === parseInt(id);
+			});
+			const newObject = { ...objeto, id: parseInt(id) };
+			this.productos[prevObjectIndex] = newObject;
+			console.log(prevObjectIndex);
+		} catch (error) {
+			console.log('error', error);
+		}
 	}
 
-	async getById() {
+	async getById(id) {
 		try {
-			const data = await fs.promises.readFile(this.file, 'utf-8');
-			const prevData = JSON.parse(data);
-			const productId = prevData.find((producto) => producto.id === id);
-			if (productId === undefined) {
+			console.log(this.productos);
+			const product = this.productos.find((producto) => producto.id === id);
+			if (product === undefined) {
 				console.log(null);
 			} else {
-				console.log(productId);
+				return product;
 			}
 		} catch (err) {
 			console.log(err);
@@ -48,9 +52,7 @@ class Contenedor {
 
 	async getAll() {
 		try {
-			const data = await fs.promises.readFile(this.file, 'utf-8');
-			const prevData = JSON.parse(data);
-			console(prevData);
+			return this.productos;
 		} catch (err) {
 			console.log(err);
 		}
@@ -58,12 +60,10 @@ class Contenedor {
 
 	async deleteById(id) {
 		try {
-			const data = await fs.promises.readFile(this.file, 'utf-8');
-			const prevData = JSON.parse(data);
-			const productId = prevData.find((producto) => producto.id === id);
+			const productId = this.productos.find((producto) => producto.id === id);
 			if (productId) {
-				const productDelete = prevData.filter((producto) => producto.id !== id);
-				await fs.promises.writeFile(`./${this.file}`, `${JSON.stringify(productDelete)}`);
+				const productDelete = this.productos.filter((producto) => producto.id !== id);
+				this.productos = productDelete;
 				console.log('objeto eliminado exitosamente');
 			} else {
 				console.log('No hay un producto para eliminar');
@@ -75,8 +75,7 @@ class Contenedor {
 
 	async deleteAll() {
 		try {
-			const deleteAll = [];
-			await fs.promises.writeFile(`./${this.file}`, `${JSON.stringify(deleteAll)}`);
+			this.productos = [];
 			console.log('todos los objetos fueron eliminados exitosamente');
 		} catch (err) {
 			console.log(err);

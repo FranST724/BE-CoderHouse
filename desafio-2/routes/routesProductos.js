@@ -1,8 +1,8 @@
-const Contenedor = require('./clase.js');
+const Contenedor = require('../clase.js');
 const { Router } = require('express');
 const router = Router();
 
-let contenedor = new Contenedor('./productos.txt');
+let contenedor = new Contenedor();
 
 router.get('/', async (req, res) => {
 	console.log('Mostrando todos los productos');
@@ -26,22 +26,27 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
 	let { id } = req.params;
-	let idParse = parseInt(id);
-	let productos = await contenedor.getAll();
-	arrayIndexPorId = [];
-	productos.forEach((element, index) => {
-		arrayIndexPorId.push({ elemId: element.id, elemIndex: index });
-	});
-	let productoASuplirIdIndex = arrayIndexPorId.find((producto) => producto.id);
-	let indexElemSuplir = productoASuplirIdIndex.elemIndex;
-	let productoModifEntrante = req.body;
-	let productoModif = { id: idParse, ...productoModifEntrante };
-	productos.splice(indexElemSuplir, 1, productoModif);
-	await contenedor.deleteAll();
-	productos.forEach(async (element) => {
-		contenedor.save2(element);
-	});
-	res.json({ productoModificado: productoModif });
+	// let idParse = parseInt(id);
+	// let productos = await contenedor.getAll();
+	// arrayIndexPorId = [];
+	// productos.forEach((element, index) => {
+	// 	arrayIndexPorId.push({ elemId: element.id, elemIndex: index });
+	// });
+	// let productoASuplirIdIndex = arrayIndexPorId.find((producto) => producto.id);
+	// let indexElemSuplir = productoASuplirIdIndex.elemIndex;
+	// let productoModifEntrante = req.body;
+	// let productoModif = { id: idParse, ...productoModifEntrante };
+	// productos.splice(indexElemSuplir, 1, productoModif);
+	// await contenedor.deleteAll();
+	// productos.forEach(async (element) => {
+	// 	contenedor.save2(element);
+	// });
+	// res.json({ productoModificado: productoModif });
+	let data = req.body;
+	if (data.title) {
+		await contenedor.update(data, id);
+	}
+	res.json('exito');
 });
 
 router.delete('/:id', async (req, res) => {
