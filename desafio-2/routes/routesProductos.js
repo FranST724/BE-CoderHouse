@@ -1,58 +1,54 @@
 const Contenedor = require('../clase.js');
 const { Router } = require('express');
 const router = Router();
+const mainScript = 'public/index.js';
+const multer = require('multer');
 
 let contenedor = new Contenedor();
+
+const storage = multer.diskStorage({
+	destination: function(req, file, cb) {
+		cb(null, 'public/uploads');
+	}
+});
+router.use(multer({ storage }).single('thumbnail'));
 
 router.get('/', async (req, res) => {
 	console.log('Mostrando todos los productos');
 	let productos = await contenedor.getAll();
-	res.send(productos);
+	res.render('index.ejs', { productos, mainScript });
 });
 
-router.get('/:id', async (req, res) => {
-	let { id } = req.params;
-	let productoPorId = await contenedor.getById(parseInt(id));
-	res.json(productoPorId);
-});
+// router.get('/:id', async (req, res) => {
+//	let { id } = req.params;
+//	let productoPorId = await contenedor.getById(parseInt(id));
+//	res.json(productoPorId);
+// });
 
 router.post('/', async (req, res) => {
+	console.log(req.body);
 	let data = req.body;
+	let photo = req.file;
+	data.thumbnail = '/uploads/' + photo.filename;
 	if (data.title) {
 		await contenedor.save(data);
 	}
-	res.json('Objeto guardado exitosamente');
+	res.redirect('/api/productos');
 });
 
-router.put('/:id', async (req, res) => {
-	let { id } = req.params;
-	// let idParse = parseInt(id);
-	// let productos = await contenedor.getAll();
-	// arrayIndexPorId = [];
-	// productos.forEach((element, index) => {
-	// 	arrayIndexPorId.push({ elemId: element.id, elemIndex: index });
-	// });
-	// let productoASuplirIdIndex = arrayIndexPorId.find((producto) => producto.id);
-	// let indexElemSuplir = productoASuplirIdIndex.elemIndex;
-	// let productoModifEntrante = req.body;
-	// let productoModif = { id: idParse, ...productoModifEntrante };
-	// productos.splice(indexElemSuplir, 1, productoModif);
-	// await contenedor.deleteAll();
-	// productos.forEach(async (element) => {
-	// 	contenedor.save2(element);
-	// });
-	// res.json({ productoModificado: productoModif });
-	let data = req.body;
-	if (data.title) {
-		await contenedor.update(data, id);
-	}
-	res.json('exito');
-});
+// router.put('/:id', async (req, res) => {
+//	let { id } = req.params;
+//	let data = req.body;
+//	if (data.title) {
+//		await contenedor.update(data, id);
+//	}
+//	res.json('exito');
+// });
 
-router.delete('/:id', async (req, res) => {
-	const { id } = req.params;
-	await contenedor.deleteById(parseInt(id));
-	res.json({ mensaje: 'producto eliminado exitosamente' });
-});
+// router.delete('/:id', async (req, res) => {
+//	const { id } = req.params;
+//	await contenedor.deleteById(parseInt(id));
+//	res.json({ mensaje: 'producto eliminado exitosamente' });
+//});
 
 module.exports = router;

@@ -19,6 +19,18 @@
     <title>Document</title>
   </head>
   <body>
-    <%- include('./partials/form.ejs') %> <%- include('./partials/list.ejs') %>
+    <div class="container" style="display: flex">
+      <div class="notification is-primary">
+        <%- include('./partials/form.ejs') %> <%-
+        include('./partials/list.ejs')%>
+      </div>
+      <div class="notification is-danger" style="margin-left: 25px">
+        <%- include('./partials/chat.ejs')%>
+      </div>
+    </div>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="../index.js"></script>
   </body>
 </html>
