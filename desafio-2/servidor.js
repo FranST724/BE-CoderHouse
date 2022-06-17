@@ -1,13 +1,15 @@
 const express = require('express');
+const app = express();
 const routesProductos = require('./routes/routesProductos');
 const { Server: HttpServer } = require('http');
 const { Server: IOServer } = require('socket.io');
 const Contenedor = require('./clase.js');
 // DB
-import { options } from './configDB';
+import { options } from './configDB.js';
 import knex from 'knex';
 
-const app = express();
+const archivoNuevo = new Contenedor(options.mariaDB, 'productos');
+const mensajesLlegados = new Contenedor(options.sqlite, 'mensajes');
 
 //Los dos servidores
 const httpServer = new HttpServer(app);
@@ -37,40 +39,37 @@ io.on('notificacion', (data) => {
 	console.log(data, 'Llego exitosamente');
 });
 
-//Nuevo server de chat
 const messages = [];
+const productos = [];
 
-// Nuevo servidor para el chat
-(async () => {
-	try {
-		// crear tabla
-		await knex(options).schema.createTableIfNotExists('usuarios', (table) => {
-			table.increments('id').primary().unique();
-			table.string('name');
-			table.string('email');
-			table.integer('edad');
-		});
-		await knex(options)('usuarios').insert(usuarios);
-		console.log('Datos insertados');
-		await knex(options).from('usuarios').select('*').then((data) => {
-			console.log(data);
-		});
-		await knex(options).from('usuarios').where('name', 'Juan').select('*').then((data) => {
-			console.log(data);
-		});
-		await knex(options)
-			.from('usuarios')
-			.where('id', 1)
-			.update({
-				name: 'Juan Pablo'
-			})
-			.then((data) => {
-				console.log(data);
-			});
-	} catch (err) {
-		console.log(err);
-	}
-})();
+async function devolverMensajes() {
+	messages = await mensajesLlegados.getAll();
+	io.sockets.emit('mensajesEnviados', messages);
+}
+
+async function devolverProds() {
+	productos = await archivoNuevo.getAll();
+	io.sockets.emit('productosEnviados', productos);
+}
+
+//Levanto el servidor io
+io.on('connection', (socket) => {
+	console.log('cliente conectado');
+
+	devolverProds();
+	socket.on('newProduct', async (product) => {
+		await archivoNuevo.save(product);
+		productos = await archivoNuevo.getAll();
+		io.sockets.emit('productosEnviados', productos);
+	});
+
+	devolverMensajes();
+	socket.on('newMessage', async (data) => {
+		await mensajesLlegados.save(data);
+		messages = await mensajesLlegados.getAll();
+		io.sockets.emit('mensajesEnviados', messages);
+	});
+});
 
 const PORT = 8080;
 const server = httpServer.listen(PORT, () => {
