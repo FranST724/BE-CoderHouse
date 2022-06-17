@@ -3,6 +3,9 @@ const routesProductos = require('./routes/routesProductos');
 const { Server: HttpServer } = require('http');
 const { Server: IOServer } = require('socket.io');
 const Contenedor = require('./clase.js');
+// DB
+import { options } from './configDB';
+import knex from 'knex';
 
 const app = express();
 
@@ -38,24 +41,36 @@ io.on('notificacion', (data) => {
 const messages = [];
 
 // Nuevo servidor para el chat
-io.on('connection', (socket) => {
-	console.log('New user connected. Soquet ID : ', socket.id);
-	socket.on('set-name', (name) => {
-		console.log('set-name', name);
-		socket.emit('user-connected', name);
-		socket.broadcast.emit('user-connected', name);
-	});
-
-	socket.on('new-message', (message) => {
-		messages.push(message);
-		socket.emit('messages', messages);
-		socket.broadcast.emit('messages', messages);
-	});
-
-	socket.on('disconnect', () => {
-		console.log('User was disconnected');
-	});
-});
+(async () => {
+	try {
+		// crear tabla
+		await knex(options).schema.createTableIfNotExists('usuarios', (table) => {
+			table.increments('id').primary().unique();
+			table.string('name');
+			table.string('email');
+			table.integer('edad');
+		});
+		await knex(options)('usuarios').insert(usuarios);
+		console.log('Datos insertados');
+		await knex(options).from('usuarios').select('*').then((data) => {
+			console.log(data);
+		});
+		await knex(options).from('usuarios').where('name', 'Juan').select('*').then((data) => {
+			console.log(data);
+		});
+		await knex(options)
+			.from('usuarios')
+			.where('id', 1)
+			.update({
+				name: 'Juan Pablo'
+			})
+			.then((data) => {
+				console.log(data);
+			});
+	} catch (err) {
+		console.log(err);
+	}
+})();
 
 const PORT = 8080;
 const server = httpServer.listen(PORT, () => {
