@@ -1,15 +1,46 @@
-const express = require('express');
+import express from 'express';
+import routesProductos from './routes/routesProductos.js';
+import { default as normalizr } from 'normalizr';
+import { Server as HttpServer } from 'http';
+import { Server as IOServer } from 'socket.io';
+import Contenedor from './clase.js';
+import { faker } from '@faker-js/faker';
+import options from './configDB.js';
+import { inspect } from 'util';
+const { normalize, schema, denormalize } = normalizr;
 const app = express();
-const routesProductos = require('./routes/routesProductos');
-const { Server: HttpServer } = require('http');
-const { Server: IOServer } = require('socket.io');
-const Contenedor = require('./clase.js');
 // DB
-import { options } from './configDB.js';
-import knex from 'knex';
 
 const archivoNuevo = new Contenedor(options.mariaDB, 'productos');
-const mensajesLlegados = new Contenedor(options.sqlite, 'mensajes');
+// const mensajesLlegados = new Contenedor(options.sqlite, 'mensajes');
+function print(obj) {
+	console.log(inspect(obj, { depth: null }));
+}
+
+const mensajesLlegados = () => {
+	const mensajes = [];
+	for (let i = 0; i < 10; i++) {
+		mensajes.push({
+			id: faker.random.numeric(5),
+			author: {
+				id: faker.random.numeric(5),
+				nombre: faker.name.firstName(),
+				apellido: faker.name.lastName(),
+				email: faker.internet.email()
+			},
+			texto: faker.lorem.sentence(),
+			date: faker.date.past().getTime()
+		});
+	}
+	return mensajes;
+};
+console.log(mensajesLlegados);
+
+const chatOriginal = {
+	id: faker.random.numeric(5),
+	nombre: faker.company.companyName(),
+	mensajesLlegados: mensajesLlegados()
+};
 
 //Los dos servidores
 const httpServer = new HttpServer(app);
@@ -20,7 +51,7 @@ let contenedor2 = new Contenedor();
 //Midddlewares
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static(__dirname + '/public'));
+app.use(express.static('../Public'));
 app.use('/api/productos', routesProductos);
 
 //Inicializando server
@@ -70,6 +101,35 @@ io.on('connection', (socket) => {
 		io.sockets.emit('mensajesEnviados', messages);
 	});
 });
+
+const authorSchema = new schema.Entity('authors');
+
+const msjSchema = new schema.Entity('mensajes', {
+	id: { type: String },
+	autor: authorSchema,
+	texto: '',
+	timestamp: { type: Number }
+});
+
+const chatSchema = new schema.Entity('chats', {
+	id: { type: String },
+	nombre: '',
+	mensajes: [ msjSchema ]
+});
+
+const chatNormalized = normalize(chatOriginal, chatSchema);
+
+print(chatNormalized);
+
+const bytesChatNormalized = Buffer.byteLength(JSON.stringify(chatNormalized), 'utf-8');
+console.log(bytesChatNormalized);
+
+const bytesChatOriginal = Buffer.byteLength(JSON.stringify(chatOriginal), 'utf-8');
+console.log(bytesChatOriginal);
+
+const difference = bytesChatOriginal - bytesChatNormalized;
+const porcentaje = difference * 100 / bytesChatOriginal;
+console.log(porcentaje, difference);
 
 const PORT = 8080;
 const server = httpServer.listen(PORT, () => {

@@ -1,8 +1,8 @@
-const Contenedor = require('../clase.js');
-const { Router } = require('express');
+import Contenedor from '../clase.js';
+import Router from 'express';
+import multer from 'multer';
 const router = Router();
 const mainScript = 'public/index.js';
-const multer = require('multer');
 
 let contenedor = new Contenedor();
 
@@ -51,4 +51,4 @@ router.post('/', async (req, res) => {
 //	res.json({ mensaje: 'producto eliminado exitosamente' });
 //});
 
-module.exports = router;
+export default router;

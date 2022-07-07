@@ -1,0 +1,101 @@
+C:\Users\Franco>mongo
+2022-06-23T17:46:21.607-0300 I CONTROL  [main] Hotfix KB2731284 or later update
+is not installed, will zero-out data files
+MongoDB shell version: 3.2.22
+connecting to: test
+> show db
+2022-06-23T17:46:27.638-0300 E QUERY    [thread1] Error: don't know how to show
+[db] :
+shellHelper.show@src/mongo/shell/utils.js:885:11
+shellHelper@src/mongo/shell/utils.js:671:15
+@(shellhelp2):1:1
+
+> show dbs
+local  0.000GB
+> use ecommerce
+switched to db ecommerce
+> db.createCollection('productos')
+{ "ok" : 1 }
+> db.createCollection('mensajes')
+{ "ok" : 1 }
+> show collections
+mensajes
+productos
+> db.productos.insertMany([{"nombre":"lapiz","precio":120},{"nombre":"cuaderno"
+"precio":580}, {"nombre":"cartuchera","precio":900}, {"nombre":"carpeta","preci
+":1280}, {"nombre":"mochila","precio":1700}, {"nombre":"camisa","precio":2300},
+{"nombre":"pantalon","precio":2860}, {"nombre":"vestido","precio":3350}, {"nomb
+e":"buzo","precio":4320}, {"nombre":"campera","precio":4990}])
+{
+        "acknowledged" : true,
+        "insertedIds" : [
+                ObjectId("62b4dbb3a9336b74970b94d1"),
+                ObjectId("62b4dbb3a9336b74970b94d2"),
+                ObjectId("62b4dbb3a9336b74970b94d3"),
+                ObjectId("62b4dbb3a9336b74970b94d4"),
+                ObjectId("62b4dbb3a9336b74970b94d5"),
+                ObjectId("62b4dbb3a9336b74970b94d6"),
+                ObjectId("62b4dbb3a9336b74970b94d7"),
+                ObjectId("62b4dbb3a9336b74970b94d8"),
+                ObjectId("62b4dbb3a9336b74970b94d9"),
+                ObjectId("62b4dbb3a9336b74970b94da")
+        ]
+}
+> db.productos.find().pretty()
+{
+        "_id" : ObjectId("62b4dbb3a9336b74970b94d1"),
+        "nombre" : "lapiz",
+        "precio" : 120
+}
+{
+        "_id" : ObjectId("62b4dbb3a9336b74970b94d2"),
+        "nombre" : "cuaderno",
+        "precio" : 580
+}
+{
+        "_id" : ObjectId("62b4dbb3a9336b74970b94d3"),
+        "nombre" : "cartuchera",
+        "precio" : 900
+}
+{
+        "_id" : ObjectId("62b4dbb3a9336b74970b94d4"),
+        "nombre" : "carpeta",
+        "precio" : 1280
+}
+{
+        "_id" : ObjectId("62b4dbb3a9336b74970b94d5"),
+        "nombre" : "mochila",
+        "precio" : 1700
+}
+{
+        "_id" : ObjectId("62b4dbb3a9336b74970b94d6"),
+        "nombre" : "camisa",
+        "precio" : 2300
+}
+{
+        "_id" : ObjectId("62b4dbb3a9336b74970b94d7"),
+        "nombre" : "pantalon",
+        "precio" : 2860
+}
+{
+        "_id" : ObjectId("62b4dbb3a9336b74970b94d8"),
+        "nombre" : "vestido",
+        "precio" : 3350
+}
+{
+        "_id" : ObjectId("62b4dbb3a9336b74970b94d9"),
+        "nombre" : "buzo",
+        "precio" : 4320
+}
+{
+        "_id" : ObjectId("62b4dbb3a9336b74970b94da"),
+        "nombre" : "campera",
+        "precio" : 4990
+}
+>
+
+
+
+
+
+

@@ -1,5 +1,3 @@
-const fs = require('fs');
-
 class Contenedor {
 	constructor() {
 		this.productos = [
@@ -83,4 +81,4 @@ class Contenedor {
 	}
 }
 
-module.exports = Contenedor;
+export default Contenedor;
