@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="field">
+            <label class="label mt-6">Nombre</label>
+            <form action="/login" method="post" class="control has-icons-left has-icons-right">
+                <input class="input is-success mt-3" type="text" name="nombre" placeholder="Ingresa tu usuario" >
+                <span class="icon is-small is-left">
+                    <i class="fas fa-user"></i>
+                </span>
+                <input class="input is-success mt-3" type="password" name="password" placeholder="Ingresa tu contraseña" >
+                <button type="submit" class="button is-primary mt-3">Ingresar</button>
+            </form>
+            <h3>¿Eres un nuevo usuario?</h3>
+            <button class="button is-danger mt-3" onclick="location.href='/registro'">Registrate</button>
+            </div>
+        </div>
+   </div>
+</body>
+
+</html>

@@ -1,5 +1,9 @@
 import express from 'express';
+import 'dotenv/config';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
 import routesProductos from './routes/routesProductos.js';
+import routesLogin from './routes/login.js';
 import { default as normalizr } from 'normalizr';
 import { Server as HttpServer } from 'http';
 import { Server as IOServer } from 'socket.io';
@@ -7,6 +11,9 @@ import Contenedor from './clase.js';
 import { faker } from '@faker-js/faker';
 import options from './configDB.js';
 import { inspect } from 'util';
+const MONGO_USER = process.env.MONGO_USER;
+const MONGO_PASS = process.env.MONGO_PASS;
+const DB_NAME = process.env.DB_NAME;
 const { normalize, schema, denormalize } = normalizr;
 const app = express();
 // DB
@@ -52,7 +59,19 @@ let contenedor2 = new Contenedor();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('../Public'));
-app.use('/api/productos', routesProductos);
+app.use(
+	session({
+		secret: 'secret',
+		resave: true,
+		saveUninitialized: true,
+		store: MongoStore.create({
+			mongoUrl: `mongodb+srv://${MONGO_USER}:${MONGO_PASS}@cluster0.8lz5w.mongodb.net/${DB_NAME}?retryWrites=true&w=majority`,
+			ttl: 60 * 10 // 10 minutos
+		})
+	})
+);
+app.use('/productos', routesProductos);
+app.use('/login', routesLogin);
 
 //Inicializando server
 io.on('connection', (socket) => {
@@ -119,17 +138,12 @@ const chatSchema = new schema.Entity('chats', {
 
 const chatNormalized = normalize(chatOriginal, chatSchema);
 
-print(chatNormalized);
-
 const bytesChatNormalized = Buffer.byteLength(JSON.stringify(chatNormalized), 'utf-8');
-console.log(bytesChatNormalized);
 
 const bytesChatOriginal = Buffer.byteLength(JSON.stringify(chatOriginal), 'utf-8');
-console.log(bytesChatOriginal);
 
 const difference = bytesChatOriginal - bytesChatNormalized;
 const porcentaje = difference * 100 / bytesChatOriginal;
-console.log(porcentaje, difference);
 
 const PORT = 8080;
 const server = httpServer.listen(PORT, () => {
