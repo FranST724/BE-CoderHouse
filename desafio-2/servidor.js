@@ -11,12 +11,48 @@ import Contenedor from './clase.js';
 import { faker } from '@faker-js/faker';
 import options from './configDB.js';
 import { inspect } from 'util';
+import cluster from 'cluster';
+import os from 'os';
+import indexRoutes from './src/routes/indexRoutes.js';
+
+const PORT = process.env.PORT || 8000;
+const MODO = process.env.MODO || 'fork';
+const nroCPUs = os.cpus().length;
+
 const MONGO_USER = process.env.MONGO_USER;
 const MONGO_PASS = process.env.MONGO_PASS;
 const DB_NAME = process.env.DB_NAME;
 const { normalize, schema, denormalize } = normalizr;
 const app = express();
 // DB
+
+if (cluster.isPrimary && MODO === 'cluster') {
+	console.log(`🧮 Primary PID ${process.pid} is running. On port ${PORT}. 🧑‍💻 MODO: ${MODO}.`);
+	for (let i = 0; i < nroCPUs; i++) {
+		cluster.fork(); // crea un proceso por cada cpu disponible
+	}
+	cluster.on('exit', (worker, code, signal) => {
+		console.log(`worker ${worker.process.pid} died`);
+	});
+} else {
+	const app = express();
+	app.use(express.json());
+	app.use(express.urlencoded({ extended: true }));
+
+	/**routes */
+	app.use('/', indexRoutes);
+	// Estos serian los workers creados a partir del Primary
+
+	const server = app.listen(PORT, () =>
+		console.log(
+			`🚀 Server started on port ${PORT}. 
+       🧑‍🔧 Worker PID: ${process.pid}. 
+       🧑‍💻 MODO: ${MODO}.
+        at ${new Date().toLocaleString()}`
+		)
+	);
+	server.on('error', (err) => console.log(err));
+}
 
 const archivoNuevo = new Contenedor(options.mariaDB, 'productos');
 // const mensajesLlegados = new Contenedor(options.sqlite, 'mensajes');
@@ -144,9 +180,3 @@ const bytesChatOriginal = Buffer.byteLength(JSON.stringify(chatOriginal), 'utf-8
 
 const difference = bytesChatOriginal - bytesChatNormalized;
 const porcentaje = difference * 100 / bytesChatOriginal;
-
-const PORT = 8080;
-const server = httpServer.listen(PORT, () => {
-	console.log(`Servidor Http escuchando en el puerto ${PORT}`);
-});
-server.on('error', (error) => console.log(`error: ${error}`));
